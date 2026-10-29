@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>같이보기</title>
+<meta name="theme-color" content="#0f172a">
+<style>
+:root{
+  --bg:#f3f5f7; --paper:#ffffff; --ink:#15202b; --ink-2:#52606d; --ink-3:#8a97a4;
+  --line:#dde3e9; --accent:#0e7490; --accent-ink:#ffffff; --accent-soft:#e0f4f8; --danger:#c2410c;
+  --radius:14px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:12px 16px;background:var(--paper);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+button.primary{background:var(--accent);color:var(--accent-ink);box-shadow:none}
+button.danger{color:var(--danger)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+input{font:inherit;width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink)}
+.hide{display:none!important}
+.wrap{max-width:720px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--ink-2);margin:0 0 20px}
+.card{background:var(--paper);border-radius:var(--radius);padding:18px;box-shadow:0 1px 2px rgba(21,32,43,.05)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:14px;color:var(--ink-2);margin-bottom:6px}
+.row{display:flex;gap:10px;align-items:center}
+.row>*{flex:1}
+.msg{color:var(--danger);font-size:14px;min-height:20px;margin-top:8px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;white-space:nowrap}
+.toast.on{opacity:1}
+
+/* 진행자 */
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--paper);z-index:10}
+.topbar .title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:18px;letter-spacing:.12em;color:var(--accent);font-weight:700}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600;font-size:14px}
+.stage{background:#000;border-radius:var(--radius);aspect-ratio:16/9;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#9aa7b4;font-size:15px}
+.stage img,.stage video{width:100%;height:100%;object-fit:contain;display:block}
+.stage .tag{position:absolute;left:10px;top:10px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;padding:4px 8px;border-radius:6px}
+.stage .tag.live{background:#dc2626}
+.ctl{display:flex;gap:8px;margin:12px 0 18px}
+.ctl button{flex:1;padding:12px 8px;font-size:15px}
+.ctl button.on{background:var(--ink);color:#fff;box-shadow:none}
+.sect{display:flex;align-items:center;justify-content:space-between;margin:6px 0 10px}
+.sect h2{font-size:16px;margin:0}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(min-width:520px){.grid{grid-template-columns:repeat(4,1fr)}}
+.th{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#dfe5ea;cursor:pointer;box-shadow:inset 0 0 0 1px var(--line)}
+.th img,.th video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.th.cur{box-shadow:0 0 0 3px var(--accent)}
+.th .k{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:2px 6px;border-radius:5px}
+.th .x{position:absolute;right:4px;top:4px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;padding:0;font-size:16px;line-height:26px;box-shadow:none}
+.th.add{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;color:var(--accent);background:var(--accent-soft);font-size:14px;font-weight:600;box-shadow:none}
+.th.add span{font-size:26px;line-height:1}
+.empty{color:var(--ink-3);font-size:14px;text-align:center;padding:20px 0}
+.prog{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin:8px 0}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+
+/* QR 모달 */
+.modal{position:fixed;inset:0;background:rgba(21,32,43,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+@media(min-width:520px){.modal{align-items:center}}
+.sheet{background:var(--paper);width:100%;max-width:440px;border-radius:20px 20px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));text-align:center}
+@media(min-width:520px){.sheet{border-radius:20px}}
+.sheet #qr{display:flex;justify-content:center;margin:14px 0}
+.sheet #qr img,.sheet #qr canvas{border-radius:8px}
+.sheet .big{font-size:34px}
+.sheet .link{font-size:13px;color:var(--ink-2);word-break:break-all;margin:6px 0 14px}
+
+/* 참여자 */
+.viewer{position:fixed;inset:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.viewer img,.viewer video{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain}
+.viewer .wait{text-align:center;padding:24px;color:#9aa7b4}
+.viewer .wait b{display:block;color:#fff;font-size:20px;margin-bottom:6px}
+.viewer .enter{position:fixed;inset:0;background:#0f172a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center}
+.viewer .enter h1{color:#fff;font-size:24px}
+.viewer .enter p{color:#9aa7b4;margin:0 0 10px}
+.viewer .enter button{font-size:18px;padding:16px 40px;background:#fff;color:#0f172a;box-shadow:none}
+.viewer .hud{position:fixed;left:12px;top:calc(12px + env(safe-area-inset-top,0px));display:flex;gap:8px;z-index:3}
+.viewer .hud span{background:rgba(0,0,0,.55);color:#fff;font-size:12px;padding:5px 9px;border-radius:6px}
+.viewer .hud span.live{background:#dc2626}
+.viewer .mute{position:fixed;right:12px;bottom:calc(16px + env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.15);color:#fff;box-shadow:none;z-index:3}
+/* 게임 */
+.card h3{margin:0 0 4px;font-size:16px}
+.card .desc{margin:0 0 12px;font-size:13px;color:var(--ink-2)}
+select{font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink)}
+.gprev{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:12px 0}
+.gprev canvas{width:100%;border-radius:8px;background:#dfe5ea}
+.board{margin-top:12px;font-size:14px}
+.board .r{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
+.board .r b{min-width:22px;color:var(--ink-3)}
+.board .r .nm{flex:1}
+.board .r.done .nm::after{content:" ✓ 완료";color:var(--accent);font-weight:600}
+.names{font-size:13px;color:var(--ink-2);margin:-8px 0 14px}
+.stage.game{aspect-ratio:auto;background:var(--paper);color:var(--ink);padding:12px;display:block}
+.viewer .diff{position:fixed;inset:0;display:flex;flex-direction:column;gap:6px;padding:calc(44px + env(safe-area-inset-top,0px)) 6px calc(8px + env(safe-area-inset-bottom,0px))}
+@media(orientation:landscape){.viewer .diff{flex-direction:row}}
+.viewer .diff .pane{flex:1;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;position:relative}
+.viewer .diff canvas{max-width:100%;max-height:100%;border-radius:6px;touch-action:manipulation}
+.viewer .dstat{position:fixed;right:12px;top:calc(12px + env(safe-area-inset-top,0px));background:rgba(0,0,0,.55);color:#fff;font-size:13px;padding:5px 10px;border-radius:6px;z-index:3}
+.viewer .dstat.win{background:#16a34a}
+.viewer .enter input{max-width:280px;text-align:center;font-size:18px;padding:14px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ===== 진행자: 시작 화면 ===== -->
+<div id="p-start" class="wrap hide">
+  <h1>같이보기</h1>
+  <p class="sub">참여자가 QR을 찍으면 내가 고른 사진·영상·카메라 화면이 각자 폰에 바로 뜹니다.</p>
+  <div class="card">
+    <div class="field"><label for="title">모임 이름 (선택)</label><input id="title" placeholder="예: 10월 시설팀장 회의" maxlength="40"></div>
+    <div class="field"><label for="pin">진행자 PIN (4자리 이상)</label><input id="pin" inputmode="numeric" placeholder="다른 폰에서 이어서 진행할 때 씁니다" maxlength="12"></div>
+    <button class="primary" style="width:100%" onclick="P.create()">새 세션 만들기</button>
+    <div class="msg" id="start-msg"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <div class="field"><label>이미 만든 세션 이어서 진행</label>
+      <div class="row"><input id="rcode" placeholder="코드 6자리" maxlength="6" style="text-transform:uppercase"><input id="rpin" inputmode="numeric" placeholder="PIN"></div></div>
+    <button style="width:100%" onclick="P.resume()">이어서 진행</button>
+  </div>
+</div>
+
+<!-- ===== 진행자: 운영 화면 ===== -->
+<div id="p-main" class="hide">
+  <div class="topbar">
+    <div class="title" id="p-title"></div>
+    <span class="code" id="p-code"></span>
+    <button class="pill" onclick="P.showQR()">QR</button>
+    <span class="pill" title="접속한 참여자">👥 <b id="p-count">0</b></span>
+  </div>
+  <div class="wrap">
+    <div class="stage" id="p-stage"><span>아직 보여주는 화면이 없습니다</span></div>
+    <div class="ctl">
+      <button id="b-blank" onclick="P.blank()">빈 화면</button>
+      <button id="b-live" onclick="P.toggleLive()">카메라 중계</button>
+      <button id="b-flip" class="hide" onclick="P.flipCam()">전후 전환</button>
+    </div>
+    <div class="names" id="p-names"></div>
+    <div class="sect"><h2>사진·영상</h2><span style="font-size:13px;color:var(--ink-3)">누르면 바로 보여줍니다</span></div>
+    <div class="prog hide" id="p-prog"><i></i></div>
+    <div class="grid" id="p-grid"></div>
+    <input type="file" id="p-file" accept="image/*,video/*" multiple class="hide">
+    <div class="sect" style="margin-top:26px"><h2>게임</h2></div>
+    <div class="card">
+      <h3>틀린그림찾기</h3>
+      <p class="desc">사진 한 장을 고르면 틀린 곳을 자동으로 만듭니다. 참여자는 아래 그림을 눌러 찾고, 여기에 순위가 뜹니다.</p>
+      <div class="row"><button onclick="$('g-file').click()">사진 고르기</button><select id="g-n"><option value="5">5곳</option><option value="7">7곳</option></select></div>
+      <input type="file" id="g-file" accept="image/*" class="hide">
+      <div class="gprev hide" id="g-prev"><canvas id="g-a"></canvas><canvas id="g-b"></canvas></div>
+      <div class="msg" id="g-msg" style="color:var(--ink-2)"></div>
+      <div class="row"><button class="primary" id="g-start" onclick="G.start()" disabled>참여자에게 시작</button><button id="g-reveal" onclick="G.reveal()" disabled>정답 공개</button><button id="g-end" onclick="G.end()" disabled>끝내기</button></div>
+      <div class="board" id="g-board"></div>
+    </div>
+    <p class="empty" style="margin-top:28px"><button class="danger" onclick="P.leave()">세션 나가기</button></p>
+  </div>
+  <div class="modal hide" id="qr-modal" onclick="if(event.target===this)this.classList.add('hide')">
+    <div class="sheet">
+      <div style="font-weight:600">카메라로 QR을 찍어 들어오세요</div>
+      <div id="qr"></div>
+      <div class="code big" id="qr-code"></div>
+      <div class="link" id="qr-link"></div>
+      <div class="row"><button onclick="P.copyLink()">링크 복사</button><button class="primary" onclick="document.getElementById('qr-modal').classList.add('hide')">닫기</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 참여자 ===== -->
+<div id="v-main" class="viewer hide">
+  <div class="hud"><span id="v-tag" class="hide"></span></div>
+  <div class="wait" id="v-wait"><b id="v-title">같이보기</b>진행자가 화면을 보여주면 여기에 나타납니다</div>
+  <img id="v-img" class="hide" alt="">
+  <video id="v-vid" class="hide" playsinline preload="auto"></video>
+  <video id="v-live" class="hide" playsinline autoplay muted></video>
+  <button class="mute hide" id="v-mute" onclick="V.toggleMute()">🔇 소리 켜기</button>
+  <div class="diff hide" id="v-diff"><div class="pane"><canvas id="v-da"></canvas></div><div class="pane"><canvas id="v-db"></canvas></div></div>
+  <div class="dstat hide" id="v-dstat"></div>
+  <div class="enter" id="v-enter">
+    <h1 id="v-enter-title">같이보기</h1>
+    <p>입장하면 진행자가 보여주는 화면이 이 폰에 실시간으로 나옵니다.</p>
+    <input id="v-name" placeholder="이름을 넣어주세요" maxlength="12" autocomplete="name">
+    <button onclick="V.enter()">입장하기</button>
+    <div class="msg" id="v-msg" style="color:#fca5a5"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* ===================== 공통 ===================== */
+const SB_URL = 'https://dbymktwxokbvfshlztrg.supabase.co';
+const SB_KEY = 'sb_publishable_RHDgmlGV-m946etnPHfXaw_vy2u8uCp';
+const BUCKET = 'share_media';
+const ICE = { iceServers: [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }] };
+const sb = supabase.createClient(SB_URL, SB_KEY);
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2, 10);
+const myId = uid();
+let toastT;
+function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2200); }
+function pageUrl() { return location.origin + location.pathname; }
+function viewerUrl(code) { return pageUrl() + '?s=' + code; }
+async function rpc(fn, args) { const { data, error } = await sb.rpc(fn, args); if (error) throw error; return data; }
+function channel(code) {
+  return sb.channel('share:' + code, { config: { broadcast: { self: false }, presence: { key: myId } } });
+}
+
+/* ===================== 진행자 ===================== */
+const P = {
+  code: null, pin: null, title: '', items: [], state: { type: 'blank' },
+  ch: null, stream: null, facing: 'environment', pcs: {}, syncT: null,
+
+  async create() {
+    const pin = $('pin').value.trim(), title = $('title').value.trim();
+    $('start-msg').textContent = '';
+    if (pin.length < 4) { $('start-msg').textContent = 'PIN은 4자리 이상 넣어주세요.'; return; }
+    try {
+      const code = await rpc('share_create', { p_pin: pin, p_title: title });
+      P.open(code, pin, true);
+    } catch (e) { $('start-msg').textContent = '세션을 만들지 못했습니다: ' + e.message; }
+  },
+  async resume() {
+    const code = $('rcode').value.trim().toUpperCase(), pin = $('rpin').value.trim();
+    if (code.length !== 6 || !pin) { toast('코드 6자리와 PIN을 넣어주세요'); return; }
+    try {
+      if (!(await rpc('share_auth', { p_code: code, p_pin: pin }))) { toast('코드 또는 PIN이 맞지 않습니다'); return; }
+      P.open(code, pin, false);
+    } catch (e) { toast('확인 실패: ' + e.message); }
+  },
+  async open(code, pin, fresh) {
+    P.code = code; P.pin = pin;
+    localStorage.setItem('share_presenter', JSON.stringify({ code, pin }));
+    const s = await rpc('share_get', { p_code: code });
+    if (!s) { toast('세션이 없습니다'); P.leave(); return; }
+    P.title = s.title || ''; P.items = s.items || []; P.state = s.state || { type: 'blank' };
+    if (P.state.type === 'live') P.state = { type: 'blank' }; // 카메라는 새로 켜야 함
+    $('p-start').classList.add('hide'); $('p-main').classList.remove('hide');
+    $('p-title').textContent = P.title || '같이보기'; $('p-code').textContent = code;
+    P.renderGrid(); P.renderStage();
+    P.connect();
+    if (fresh) P.showQR();
+    $('p-file').onchange = e => P.upload([...e.target.files]);
+  },
+  connect() {
+    P.ch = channel(P.code);
+    P.ch.on('presence', { event: 'sync' }, () => {
+      const st = P.ch.presenceState();
+      const viewers = Object.keys(st).filter(k => k !== myId);
+      $('p-count').textContent = viewers.length;
+      $('p-names').textContent = viewers.map(k => (st[k][0] || {}).name || '이름 없음').join(', ');
+      if (P.stream) viewers.forEach(id => { if (!P.pcs[id]) P.offer(id); });
+      Object.keys(P.pcs).forEach(id => { if (!viewers.includes(id)) P.closePc(id); });
+    });
+    P.ch.on('broadcast', { event: 'rtc' }, ({ payload }) => P.onRtc(payload));
+    P.ch.on('broadcast', { event: 'found' }, ({ payload }) => G.onFound(payload));
+    P.ch.on('broadcast', { event: 'hello' }, ({ payload }) => {
+      // 늦게 들어온 참여자에게 현재 상태를 바로 보냄
+      P.send('state', P.state);
+      if (P.state.type === 'video') P.sendVideo('sync');
+    });
+    P.ch.subscribe(status => { if (status === 'SUBSCRIBED') P.ch.track({ role: 'presenter' }); });
+  },
+  send(event, payload) { return P.ch.send({ type: 'broadcast', event, payload }); },
+  async setState(state) {
+    P.state = state; P.renderStage(); P.renderGrid();
+    P.send('state', state);
+    if (state.type !== 'live') { try { await rpc('share_set', { p_code: P.code, p_pin: P.pin, p_state: state }); } catch (e) { toast('저장 실패: ' + e.message); } }
+    else { rpc('share_set', { p_code: P.code, p_pin: P.pin, p_state: { type: 'blank' } }).catch(() => {}); }
+  },
+  async saveItems() { try { await rpc('share_set', { p_code: P.code, p_pin: P.pin, p_items: P.items }); } catch (e) { toast('목록 저장 실패: ' + e.message); } },
+
+  /* ---- 화면 ---- */
+  blank() { P.stopLive(); G.resetUI(); P.setState({ type: 'blank' }); },
+  show(i) {
+    P.stopLive(); G.resetUI();
+    const it = P.items[i];
+    P.setState({ type: it.kind, url: it.url, id: it.id, paused: true, t: 0 });
+  },
+  renderStage() {
+    const st = $('p-stage'); st.innerHTML = '';
+    $('b-blank').classList.toggle('on', P.state.type === 'blank');
+    $('b-live').classList.toggle('on', P.state.type === 'live');
+    $('b-live').textContent = P.state.type === 'live' ? '중계 끝내기' : '카메라 중계';
+    $('b-flip').classList.toggle('hide', P.state.type !== 'live');
+    st.classList.toggle('game', P.state.type === 'game');
+    if (P.state.type === 'blank') { st.innerHTML = '<span>참여자 화면이 비어 있습니다</span>'; return; }
+    if (P.state.type === 'game') { st.innerHTML = '<div style="font-weight:600">🎮 틀린그림찾기 진행 중 — ' + P.state.n + '곳' + (P.state.status === 'reveal' ? ' · 정답 공개됨' : '') + '</div><div style="font-size:13px;color:var(--ink-2)">아래 게임 카드에서 순위를 확인하세요</div>'; return; }
+    if (P.state.type === 'image') { const im = new Image(); im.src = P.state.url; st.appendChild(im); return; }
+    if (P.state.type === 'video') {
+      const v = document.createElement('video'); v.src = P.state.url; v.controls = true; v.playsInline = true; v.preload = 'auto';
+      v.onplay = () => P.sendVideo('play'); v.onpause = () => P.sendVideo('pause'); v.onseeked = () => P.sendVideo('seek');
+      v.ontimeupdate = () => { if (!v.paused && Date.now() - (P._lastTick || 0) > 2500) { P._lastTick = Date.now(); P.sendVideo('tick'); } };
+      v.onended = () => P.sendVideo('pause');
+      st.appendChild(v); P.vid = v;
+      const t = document.createElement('span'); t.className = 'tag'; t.textContent = '재생·정지·이동이 참여자에게 같이 적용됩니다'; st.appendChild(t);
+      return;
+    }
+    if (P.state.type === 'live') {
+      const v = document.createElement('video'); v.srcObject = P.stream; v.muted = true; v.autoplay = true; v.playsInline = true; st.appendChild(v);
+      const t = document.createElement('span'); t.className = 'tag live'; t.textContent = '● 실시간 중계 중'; st.appendChild(t);
+    }
+  },
+  sendVideo(action) {
+    const v = P.vid; if (!v) return;
+    P.send('video', { action, t: v.currentTime, paused: v.paused, url: P.state.url });
+  },
+  renderGrid() {
+    const g = $('p-grid'); g.innerHTML = '';
+    const add = document.createElement('div'); add.className = 'th add'; add.innerHTML = '<span>＋</span>사진·영상 추가'; add.onclick = () => $('p-file').click(); g.appendChild(add);
+    P.items.forEach((it, i) => {
+      const d = document.createElement('div'); d.className = 'th' + (P.state.id === it.id ? ' cur' : '');
+      if (it.kind === 'image') { const im = new Image(); im.src = it.url; im.loading = 'lazy'; d.appendChild(im); }
+      else { const v = document.createElement('video'); v.src = it.url + '#t=0.5'; v.preload = 'metadata'; v.muted = true; v.playsInline = true; d.appendChild(v); const k = document.createElement('span'); k.className = 'k'; k.textContent = '영상'; d.appendChild(k); }
+      const x = document.createElement('button'); x.className = 'x'; x.textContent = '×'; x.title = '삭제';
+      x.onclick = e => { e.stopPropagation(); P.remove(i); };
+      d.onclick = () => P.show(i); d.appendChild(x); g.appendChild(d);
+    });
+  },
+
+  /* ---- 업로드 ---- */
+  async upload(files) {
+    if (!files.length) return;
+    const prog = $('p-prog'), bar = prog.querySelector('i'); prog.classList.remove('hide'); bar.style.width = '0%';
+    let n = 0;
+    for (const f of files) {
+      try {
+        const kind = f.type.startsWith('video/') ? 'video' : 'image';
+        let blob = f, ext = (f.name.split('.').pop() || 'bin').toLowerCase();
+        if (kind === 'image') { blob = await P.shrink(f); ext = 'jpg'; }
+        if (blob.size > 100 * 1024 * 1024) { toast(f.name + ': 100MB를 넘어 건너뜀'); continue; }
+        const id = Date.now().toString(36) + uid();
+        const path = P.code + '/' + id + '.' + ext;
+        const { error } = await sb.storage.from(BUCKET).upload(path, blob, { contentType: blob.type || f.type, upsert: false });
+        if (error) throw error;
+        const url = sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+        P.items.push({ id, kind, url, path, name: f.name });
+      } catch (e) { toast(f.name + ' 올리기 실패: ' + e.message); }
+      n++; bar.style.width = Math.round(n / files.length * 100) + '%';
+    }
+    await P.saveItems(); P.renderGrid(); $('p-file').value = '';
+    setTimeout(() => prog.classList.add('hide'), 600);
+  },
+  shrink(file) {
+    return new Promise(res => {
+      const im = new Image(); const u = URL.createObjectURL(file);
+      im.onload = () => {
+        const max = 1800, r = Math.min(1, max / Math.max(im.width, im.height));
+        const c = document.createElement('canvas'); c.width = Math.round(im.width * r); c.height = Math.round(im.height * r);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(u);
+        c.toBlob(b => res(b || file), 'image/jpeg', 0.86);
+      };
+      im.onerror = () => res(file);
+      im.src = u;
+    });
+  },
+  async remove(i) {
+    const it = P.items[i];
+    if (!confirm('이 항목을 지울까요?')) return;
+    P.items.splice(i, 1);
+    if (P.state.id === it.id) P.setState({ type: 'blank' });
+    sb.storage.from(BUCKET).remove([it.path]).catch(() => {});
+    await P.saveItems(); P.renderGrid();
+  },
+
+  /* ---- 카메라 중계 (WebRTC) ---- */
+  async toggleLive() {
+    if (P.state.type === 'live') { P.blank(); return; }
+    try {
+      P.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: P.facing, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+    } catch (e) { toast('카메라를 열 수 없습니다: ' + e.message); return; }
+    G.resetUI();
+    P.setState({ type: 'live' });
+    const st = P.ch.presenceState();
+    Object.keys(st).filter(k => k !== myId).forEach(id => P.offer(id));
+  },
+  async flipCam() {
+    P.facing = P.facing === 'environment' ? 'user' : 'environment';
+    let s; try { s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: P.facing, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }); } catch (e) { toast('전환 실패'); return; }
+    const track = s.getVideoTracks()[0];
+    Object.values(P.pcs).forEach(pc => { const sn = pc.getSenders().find(x => x.track && x.track.kind === 'video'); if (sn) sn.replaceTrack(track); });
+    P.stream.getTracks().forEach(t => t.stop()); P.stream = s; P.renderStage();
+  },
+  stopLive() {
+    if (P.stream) { P.stream.getTracks().forEach(t => t.stop()); P.stream = null; }
+    Object.keys(P.pcs).forEach(P.closePc);
+  },
+  closePc(id) { if (P.pcs[id]) { try { P.pcs[id].close(); } catch (e) {} delete P.pcs[id]; } },
+  async offer(id) {
+    if (!P.stream) return;
+    P.closePc(id);
+    const pc = new RTCPeerConnection(ICE); P.pcs[id] = pc;
+    P.stream.getTracks().forEach(t => pc.addTrack(t, P.stream));
+    pc.onicecandidate = e => { if (e.candidate) P.send('rtc', { to: id, from: myId, kind: 'ice', data: e.candidate }); };
+    pc.onconnectionstatechange = () => { if (['failed', 'disconnected'].includes(pc.connectionState)) setTimeout(() => { if (P.stream && P.pcs[id] === pc) P.offer(id); }, 2000); };
+    const o = await pc.createOffer(); await pc.setLocalDescription(o);
+    P.send('rtc', { to: id, from: myId, kind: 'offer', data: pc.localDescription });
+  },
+  async onRtc(m) {
+    if (m.kind === 'want') { if (P.stream) P.offer(m.from); return; }
+    if (m.to !== myId) return;
+    const pc = P.pcs[m.from];
+    if (!pc) return;
+    if (m.kind === 'answer') { try { await pc.setRemoteDescription(m.data); } catch (e) {} }
+    if (m.kind === 'ice') { try { await pc.addIceCandidate(m.data); } catch (e) {} }
+  },
+
+  /* ---- 기타 ---- */
+  showQR() {
+    const url = viewerUrl(P.code);
+    $('qr').innerHTML = ''; new QRCode($('qr'), { text: url, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
+    $('qr-code').textContent = P.code; $('qr-link').textContent = url;
+    $('qr-modal').classList.remove('hide');
+  },
+  async copyLink() { try { await navigator.clipboard.writeText(viewerUrl(P.code)); toast('링크를 복사했습니다'); } catch (e) { prompt('링크', viewerUrl(P.code)); } },
+  leave() {
+    P.stopLive(); if (P.ch) sb.removeChannel(P.ch);
+    localStorage.removeItem('share_presenter');
+    $('p-main').classList.add('hide'); $('p-start').classList.remove('hide');
+  }
+};
+
+/* ===================== 참여자 ===================== */
+const V = {
+  code: null, ch: null, pc: null, muted: true, entered: false,
+  async init(code) {
+    V.code = code;
+    $('v-main').classList.remove('hide');
+    try {
+      const s = await rpc('share_get', { p_code: code });
+      if (!s) { $('v-msg').textContent = '세션을 찾을 수 없습니다. QR을 다시 확인해 주세요.'; document.querySelector('#v-enter button').disabled = true; return; }
+      if (s.title) { $('v-enter-title').textContent = s.title; $('v-title').textContent = s.title; }
+      $('v-name').value = localStorage.getItem('share_name') || '';
+      V.state = s.state;
+    } catch (e) { $('v-msg').textContent = '연결 실패: ' + e.message; }
+  },
+  enter() {
+    const nm = $('v-name').value.trim();
+    if (!nm) { $('v-msg').textContent = '이름을 넣어주세요.'; $('v-name').focus(); return; }
+    V.name = nm; localStorage.setItem('share_name', nm);
+    V.entered = true; $('v-enter').classList.add('hide');
+    // 사용자 터치로 재생 권한 확보
+    const v = $('v-vid'); v.muted = true; v.play().catch(() => {}); v.pause();
+    V.ch = channel(V.code);
+    V.ch.on('broadcast', { event: 'state' }, ({ payload }) => V.apply(payload));
+    V.ch.on('broadcast', { event: 'video' }, ({ payload }) => V.onVideo(payload));
+    V.ch.on('broadcast', { event: 'rtc' }, ({ payload }) => V.onRtc(payload));
+    V.ch.on('broadcast', { event: 'game' }, ({ payload }) => VG.on(payload));
+    V.ch.subscribe(async status => {
+      if (status === 'SUBSCRIBED') {
+        await V.ch.track({ role: 'viewer', name: V.name });
+        V.ch.send({ type: 'broadcast', event: 'hello', payload: { id: myId } });
+        if (V.state) V.apply(V.state);
+      }
+    });
+    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+  },
+  send(event, payload) { return V.ch.send({ type: 'broadcast', event, payload }); },
+  apply(st) {
+    V.state = st;
+    const img = $('v-img'), vid = $('v-vid'), live = $('v-live'), wait = $('v-wait'), tag = $('v-tag');
+    [img, vid, live, wait].forEach(x => x.classList.add('hide'));
+    tag.classList.add('hide'); tag.classList.remove('live'); $('v-mute').classList.add('hide');
+    if (st.type !== 'game') VG.hide();
+    if (st.type !== 'live' && V.pc) { V.pc.close(); V.pc = null; live.srcObject = null; }
+    if (st.type !== 'video') { vid.pause(); }
+    if (st.type === 'blank' || !st.type) { wait.classList.remove('hide'); return; }
+    if (st.type === 'game') { VG.show(st); return; }
+    if (st.type === 'image') { img.src = st.url; img.classList.remove('hide'); return; }
+    if (st.type === 'video') {
+      if (vid.getAttribute('src') !== st.url) { vid.src = st.url; vid.load(); }
+      vid.muted = V.muted; vid.classList.remove('hide'); $('v-mute').classList.remove('hide'); V.updMute();
+      tag.textContent = '영상'; tag.classList.remove('hide');
+      if (st.t) vid.currentTime = st.t;
+      if (st.paused === false) vid.play().catch(() => {});
+      return;
+    }
+    if (st.type === 'live') {
+      live.classList.remove('hide'); tag.textContent = '● 실시간'; tag.classList.add('live'); tag.classList.remove('hide');
+      V.send('rtc', { to: null, from: myId, kind: 'want' });
+    }
+  },
+  onVideo(m) {
+    const vid = $('v-vid'); if (V.state.type !== 'video' || m.url !== V.state.url) return;
+    const drift = Math.abs(vid.currentTime - m.t);
+    if (m.action === 'play') { if (drift > 1) vid.currentTime = m.t; vid.play().catch(() => {}); }
+    else if (m.action === 'pause') { vid.pause(); vid.currentTime = m.t; }
+    else if (m.action === 'seek' || m.action === 'sync') { vid.currentTime = m.t; if (m.paused) vid.pause(); else vid.play().catch(() => {}); }
+    else if (m.action === 'tick') { if (drift > 1.5) vid.currentTime = m.t; if (vid.paused && !m.paused) vid.play().catch(() => {}); }
+  },
+  toggleMute() { V.muted = !V.muted; $('v-vid').muted = V.muted; V.updMute(); },
+  updMute() { $('v-mute').textContent = V.muted ? '🔇 소리 켜기' : '🔊 소리 끄기'; },
+  async onRtc(m) {
+    if (m.to && m.to !== myId) return;
+    if (m.kind === 'offer') {
+      if (V.pc) V.pc.close();
+      const pc = new RTCPeerConnection(ICE); V.pc = pc;
+      pc.ontrack = e => { const live = $('v-live'); live.srcObject = e.streams[0]; live.play().catch(() => {}); };
+      pc.onicecandidate = e => { if (e.candidate) V.send('rtc', { to: m.from, from: myId, kind: 'ice', data: e.candidate }); };
+      await pc.setRemoteDescription(m.data);
+      const a = await pc.createAnswer(); await pc.setLocalDescription(a);
+      V.send('rtc', { to: m.from, from: myId, kind: 'answer', data: pc.localDescription });
+    } else if (m.kind === 'ice' && V.pc) { try { await V.pc.addIceCandidate(m.data); } catch (e) {} }
+  }
+};
+
+
+/* ===================== 게임: 틀린그림찾기 ===================== */
+// 공통 유틸
+function fitCanvas(c, iw, ih, maxW, maxH) { const r = Math.min(maxW / iw, maxH / ih, 1); c.width = Math.round(iw * r); c.height = Math.round(ih * r); return r; }
+function loadImg(src) { return new Promise((res, rej) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => res(im); im.onerror = rej; im.src = src; }); }
+function drawMarks(ctx, regions, found, W, H, reveal) {
+  regions.forEach((r, i) => {
+    const hit = found.has(i); if (!hit && !reveal) return;
+    ctx.save(); ctx.lineWidth = Math.max(3, W * 0.006); ctx.strokeStyle = hit ? '#22c55e' : '#ef4444';
+    ctx.beginPath(); ctx.ellipse((r.x + r.w / 2) * W, (r.y + r.h / 2) * H, r.w * W * 0.65, r.h * H * 0.65, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+  });
+}
+
+// 진행자
+const G = {
+  a: null, b: null, regions: [], n: 5, scores: {}, status: null,
+  init() { $('g-file').onchange = e => { if (e.target.files[0]) G.make(e.target.files[0]); e.target.value = ''; }; },
+  async make(file) {
+    $('g-msg').textContent = '틀린 곳을 만드는 중…'; $('g-start').disabled = true;
+    const im = await loadImg(URL.createObjectURL(file));
+    const A = document.createElement('canvas'), B = document.createElement('canvas');
+    fitCanvas(A, im.width, im.height, 1200, 1200); B.width = A.width; B.height = A.height;
+    const W = A.width, H = A.height, ca = A.getContext('2d'), cb = B.getContext('2d');
+    ca.drawImage(im, 0, 0, W, H); cb.drawImage(A, 0, 0);
+    G.n = +$('g-n').value;
+    const regs = [];
+    for (let tries = 0; regs.length < G.n && tries < 300; tries++) {
+      const w = W * (0.09 + Math.random() * 0.07), h = w * (0.7 + Math.random() * 0.6);
+      const x = Math.random() * (W - w), y = Math.random() * (H - h);
+      if (regs.some(r => x < r.x + r.w * 1.3 && x + w * 1.3 > r.x && y < r.y + r.h * 1.3 && y + h * 1.3 > r.y)) continue;
+      regs.push({ x, y, w, h });
+    }
+    const kinds = ['hue', 'flip', 'clone', 'shape', 'dark'];
+    const hasFilter = 'filter' in cb;
+    regs.forEach((r, i) => {
+      let k = kinds[i % kinds.length]; if (!hasFilter && (k === 'hue' || k === 'dark')) k = 'flip';
+      const { x, y, w, h } = r;
+      cb.save(); cb.beginPath(); cb.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, Math.PI * 2); cb.clip();
+      if (k === 'hue') { cb.filter = 'hue-rotate(' + (120 + Math.random() * 120) + 'deg) saturate(1.6)'; cb.drawImage(A, x, y, w, h, x, y, w, h); }
+      else if (k === 'dark') { cb.filter = 'brightness(0.55)'; cb.drawImage(A, x, y, w, h, x, y, w, h); }
+      else if (k === 'flip') { cb.translate(x + w / 2, 0); cb.scale(-1, 1); cb.drawImage(A, x, y, w, h, -w / 2, y, w, h); }
+      else if (k === 'clone') {
+        let dx = (Math.random() < .5 ? -1 : 1) * w * 0.8, dy = (Math.random() < .5 ? -1 : 1) * h * 0.5;
+        if (x + dx < 0 || x + dx + w > W) dx = -dx; if (y + dy < 0 || y + dy + h > H) dy = -dy;
+        cb.drawImage(A, x + dx, y + dy, w, h, x, y, w, h);
+      } else {
+        cb.fillStyle = 'hsl(' + Math.floor(Math.random() * 360) + ',75%,55%)';
+        cb.beginPath(); cb.arc(x + w / 2, y + h / 2, Math.min(w, h) * 0.28, 0, Math.PI * 2); cb.fill();
+      }
+      cb.restore();
+    });
+    G.regions = regs.map(r => ({ x: r.x / W, y: r.y / H, w: r.w / W, h: r.h / H }));
+    // 미리보기
+    const pa = $('g-a'), pb = $('g-b'); fitCanvas(pa, W, H, 600, 600); pb.width = pa.width; pb.height = pa.height;
+    pa.getContext('2d').drawImage(A, 0, 0, pa.width, pa.height); pb.getContext('2d').drawImage(B, 0, 0, pb.width, pb.height);
+    drawMarks(pb.getContext('2d'), G.regions, new Set(), pb.width, pb.height, true);
+    $('g-prev').classList.remove('hide');
+    // 업로드
+    try {
+      const id = Date.now().toString(36);
+      const up = async (c, nm) => { const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.86));
+        const path = P.code + '/game_' + id + '_' + nm + '.jpg';
+        const { error } = await sb.storage.from(BUCKET).upload(path, blob, { contentType: 'image/jpeg' }); if (error) throw error;
+        return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl; };
+      G.a = await up(A, 'a'); G.b = await up(B, 'b');
+      $('g-msg').textContent = '준비 완료 — 빨간 원이 정답 위치입니다(참여자에겐 안 보임).'; $('g-start').disabled = false;
+    } catch (e) { $('g-msg').textContent = '올리기 실패: ' + e.message; }
+  },
+  start() {
+    P.stopLive(); G.scores = {}; G.status = 'play'; G.renderBoard();
+    P.setState({ type: 'game', game: 'diff', a: G.a, b: G.b, regions: G.regions, n: G.regions.length, started: Date.now(), status: 'play' });
+    $('g-reveal').disabled = false; $('g-end').disabled = false; $('g-start').textContent = '다시 시작';
+  },
+  reveal() { if (P.state.type !== 'game') return; G.status = 'reveal'; P.setState(Object.assign({}, P.state, { status: 'reveal' })); },
+  end() { P.blank(); },
+  resetUI() { $('g-reveal').disabled = true; $('g-end').disabled = true; $('g-start').textContent = '참여자에게 시작'; },
+  onFound(m) {
+    if (P.state.type !== 'game' || m.started !== P.state.started) return;
+    G.scores[m.id] = { name: m.name, found: m.found, ms: m.ms, done: m.done };
+    G.renderBoard();
+  },
+  renderBoard() {
+    const b = $('g-board'); const rows = Object.values(G.scores).sort((p, q) => q.found - p.found || p.ms - q.ms);
+    if (!rows.length) { b.innerHTML = P.state.type === 'game' ? '<div class="empty">아직 찾은 사람이 없습니다</div>' : ''; return; }
+    b.innerHTML = rows.map((r, i) => '<div class="r' + (r.done ? ' done' : '') + '"><b>' + (i + 1) + '</b><span class="nm">' + esc(r.name) + '</span><span>' + r.found + '/' + P.state.n + ' · ' + (r.ms / 1000).toFixed(1) + '초</span></div>').join('');
+  }
+};
+function esc(t) { return String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+// 참여자
+const VG = {
+  st: null, found: new Set(), imA: null, imB: null, done: false,
+  on() {},
+  hide() { $('v-diff').classList.add('hide'); $('v-dstat').classList.add('hide'); },
+  async show(st) {
+    const fresh = !VG.st || VG.st.started !== st.started;
+    VG.st = st; $('v-diff').classList.remove('hide'); $('v-dstat').classList.remove('hide');
+    if (fresh) { VG.found = new Set(); VG.done = false; VG.imA = null; VG.imB = null; VG.t0 = Date.now(); }
+    if (!VG.imA) { try { [VG.imA, VG.imB] = await Promise.all([loadImg(st.a), loadImg(st.b)]); } catch (e) { $('v-dstat').textContent = '그림을 못 불러왔습니다'; return; } }
+    VG.draw(); VG.stat();
+    const cb = $('v-db'), ca = $('v-da');
+    cb.onclick = ca.onclick = e => VG.tap(e, e.currentTarget);
+    window.onresize = () => { if (VG.st) VG.draw(); };
+  },
+  draw() {
+    const st = VG.st, im = VG.imA; const panes = document.querySelectorAll('#v-diff .pane');
+    [['v-da', VG.imA], ['v-db', VG.imB]].forEach(([id, img], i) => {
+      const c = $(id), p = panes[i]; fitCanvas(c, im.width, im.height, p.clientWidth, p.clientHeight);
+      const ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, c.width, c.height);
+      drawMarks(ctx, st.regions, VG.found, c.width, c.height, st.status === 'reveal');
+    });
+  },
+  tap(e, c) {
+    const st = VG.st; if (st.status !== 'play' || VG.done) return;
+    const r = c.getBoundingClientRect(); const nx = (e.clientX - r.left) / r.width, ny = (e.clientY - r.top) / r.height;
+    const i = st.regions.findIndex(g => { const cx = g.x + g.w / 2, cy = g.y + g.h / 2; const dx = (nx - cx) / (g.w * 0.75), dy = (ny - cy) / (g.h * 0.75); return dx * dx + dy * dy <= 1; });
+    if (i < 0 || VG.found.has(i)) { if (navigator.vibrate) navigator.vibrate(60); return; }
+    VG.found.add(i); VG.done = VG.found.size === st.n; VG.draw(); VG.stat();
+    V.send('found', { id: myId, name: V.name, idx: i, found: VG.found.size, ms: Date.now() - VG.t0, done: VG.done, started: st.started });
+  },
+  stat() {
+    const d = $('v-dstat'); d.classList.toggle('win', VG.done);
+    d.textContent = VG.done ? '🎉 다 찾았습니다! ' + ((Date.now() - VG.t0) / 1000).toFixed(1) + '초' : VG.st.status === 'reveal' ? '정답 공개 · ' + VG.found.size + '/' + VG.st.n : '찾은 곳 ' + VG.found.size + ' / ' + VG.st.n + ' — 아래 그림을 눌러보세요';
+  }
+};
+
+/* ===================== 시작 ===================== */
+(function () {
+  const code = new URLSearchParams(location.search).get('s');
+  if (code) { V.init(code.toUpperCase()); return; }
+  $('p-start').classList.remove('hide'); G.init();
+  try {
+    const saved = JSON.parse(localStorage.getItem('share_presenter') || 'null');
+    if (saved && saved.code && saved.pin) rpc('share_auth', { p_code: saved.code, p_pin: saved.pin }).then(ok => { if (ok) P.open(saved.code, saved.pin, false); });
+  } catch (e) {}
+  if (document.visibilityState) document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && P.ch && P.state.type === 'video') P.sendVideo('sync'); });
+})();
+</script>
+</body>
+</html>
