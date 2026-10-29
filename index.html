@@ -4,7 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>같이보기</title>
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#0e7490">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="같이보기">
 <style>
 :root{
   --bg:#f3f5f7; --paper:#ffffff; --ink:#15202b; --ink-2:#52606d; --ink-3:#8a97a4;
@@ -106,6 +113,52 @@ select{font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius
 .viewer .dstat{position:fixed;right:12px;top:calc(12px + env(safe-area-inset-top,0px));background:rgba(0,0,0,.55);color:#fff;font-size:13px;padding:5px 10px;border-radius:6px;z-index:3}
 .viewer .dstat.win{background:#16a34a}
 .viewer .enter input{max-width:280px;text-align:center;font-size:18px;padding:14px}
+.install{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--ink);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.25);border-radius:999px;padding:12px 18px;font-weight:600;display:flex;align-items:center;gap:8px}
+.install .x{background:none;color:#9aa7b4;padding:0 0 0 6px;box-shadow:none;font-size:18px;line-height:1}
+.ios-tip{position:fixed;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--paper);border-radius:14px;padding:14px 16px;box-shadow:0 6px 20px rgba(0,0,0,.2);font-size:14px}
+/* OX 퀴즈 */
+.qlist{margin:10px 0}
+.qlist .qi{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.qlist .qi.cur{background:var(--accent-soft);margin:0 -8px;padding:8px}
+.qlist .qi .t{flex:1}
+.qlist .qi .a{font-weight:700;width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px}
+.qlist .qi .a.O{background:#dcfce7;color:#15803d}.qlist .qi .a.X{background:#fee2e2;color:#b91c1c}
+.qlist .qi .x{background:none;box-shadow:none;color:var(--ink-3);padding:4px 6px}
+.qadd{display:flex;gap:6px;margin-top:8px}
+.qadd input{flex:1}
+.qadd select{width:70px;padding:12px 8px}
+.arena{position:relative;height:230px;border-radius:12px;overflow:hidden;background:var(--surface,#eef2f5);margin-top:10px}
+.arena .zone{position:absolute;top:0;bottom:0;width:38%;display:flex;align-items:flex-start;justify-content:center;padding-top:8px;font-size:40px;font-weight:900;opacity:.9}
+.arena .zone.O{left:0;background:linear-gradient(180deg,#dcfce7,#bbf7d0);color:#15803d}
+.arena .zone.X{right:0;background:linear-gradient(180deg,#fee2e2,#fecaca);color:#b91c1c}
+.arena .zone.win{box-shadow:inset 0 0 0 4px currentColor}
+.arena .zone.lose{opacity:.35}
+.arena .mid{position:absolute;left:38%;right:38%;top:0;bottom:0;display:flex;align-items:flex-start;justify-content:center;padding-top:14px;color:var(--ink-3);font-size:22px}
+.av{position:absolute;width:44px;margin-left:-22px;text-align:center;transition:left .7s cubic-bezier(.34,1.56,.64,1),top .7s cubic-bezier(.34,1.56,.64,1);will-change:left,top}
+.av .e{font-size:28px;line-height:1;display:block;animation:bob 1.6s ease-in-out infinite}
+.av:nth-child(2n) .e{animation-delay:-.5s}.av:nth-child(3n) .e{animation-delay:-1s}
+.av .n{display:block;font-size:10px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:44px}
+.av.ok .e{animation:hop .5s ease-out 2}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes hop{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-14px) scale(1.25)}}
+.qstat{font-size:13px;color:var(--ink-2);margin-top:6px;display:flex;justify-content:space-between}
+.viewer .ox{position:fixed;inset:0;display:flex;flex-direction:column;padding:calc(44px + env(safe-area-inset-top,0px)) 14px calc(14px + env(safe-area-inset-bottom,0px));gap:10px}
+.viewer .ox .q{color:#fff;font-size:20px;font-weight:600;line-height:1.35;text-align:center;min-height:54px}
+.viewer .ox .q small{display:block;font-size:12px;color:#9aa7b4;font-weight:400;margin-bottom:4px}
+.viewer .ox .arena{flex:1;min-height:140px;height:auto;--surface:#1e293b}
+.viewer .ox .arena .zone{font-size:34px}
+.viewer .ox .av .n{color:#cbd5e1}
+.viewer .ox .btns{display:flex;gap:12px}
+.viewer .ox .btns button{flex:1;font-size:56px;font-weight:900;padding:14px 0;border-radius:18px;box-shadow:none;transition:transform .15s}
+.viewer .ox .btns .O{background:#16a34a;color:#fff}.viewer .ox .btns .X{background:#dc2626;color:#fff}
+.viewer .ox .btns button.sel{transform:scale(1.06);box-shadow:0 0 0 4px #fff}
+.viewer .ox .btns button:disabled{opacity:.4;transform:none}
+.viewer .ox .res{text-align:center;color:#fff;font-size:22px;font-weight:700}
+.viewer .ox .rank{color:#cbd5e1;font-size:13px;text-align:center;line-height:1.7}
+.emojis{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:300px}
+.emojis span{font-size:26px;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;background:rgba(255,255,255,.08);cursor:pointer}
+.emojis span.sel{background:#fff;box-shadow:0 0 0 2px var(--accent)}
+.viewer .enter .ehint{color:#9aa7b4;font-size:13px;margin:0}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -114,7 +167,11 @@ select{font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius
 <!-- ===== 진행자: 시작 화면 ===== -->
 <div id="p-start" class="wrap hide">
   <h1>같이보기</h1>
-  <p class="sub">참여자가 QR을 찍으면 내가 고른 사진·영상·카메라 화면이 각자 폰에 바로 뜹니다.</p>
+  <p class="sub">참여자가 QR을 찍거나 링크·코드로 들어오면 내가 고른 사진·영상·카메라 화면이 각자 폰에 바로 뜹니다.</p>
+  <div class="card" style="margin-bottom:12px;background:var(--accent-soft)">
+    <div class="field" style="margin-bottom:8px"><label for="jcode" style="color:var(--accent);font-weight:600">참여자이신가요? 코드로 입장</label>
+      <div class="row"><input id="jcode" placeholder="코드 6자리" maxlength="6" style="text-transform:uppercase;letter-spacing:.15em;font-weight:700" inputmode="latin" autocapitalize="characters"><button class="primary" style="flex:0 0 auto" onclick="joinByCode()">입장</button></div></div>
+  </div>
   <div class="card">
     <div class="field"><label for="title">모임 이름 (선택)</label><input id="title" placeholder="예: 10월 시설팀장 회의" maxlength="40"></div>
     <div class="field"><label for="pin">진행자 PIN (4자리 이상)</label><input id="pin" inputmode="numeric" placeholder="다른 폰에서 이어서 진행할 때 씁니다" maxlength="12"></div>
@@ -159,6 +216,19 @@ select{font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius
       <div class="row"><button class="primary" id="g-start" onclick="G.start()" disabled>참여자에게 시작</button><button id="g-reveal" onclick="G.reveal()" disabled>정답 공개</button><button id="g-end" onclick="G.end()" disabled>끝내기</button></div>
       <div class="board" id="g-board"></div>
     </div>
+    <div class="card" style="margin-top:12px">
+      <h3>OX 퀴즈</h3>
+      <p class="desc">문제를 미리 넣어 두거나 현장에서 바로 내세요. 참여자가 고르면 이모티콘이 O·X 쪽으로 움직입니다.</p>
+      <div class="row" style="margin-bottom:4px"><select id="ox-cat" style="flex:1.4"><option value="">문제 은행 · 전체(랜덤)</option></select><button onclick="OX.draw(1)" style="flex:0 0 auto">1문제 뽑기</button><button onclick="OX.draw(5)" style="flex:0 0 auto">5문제 담기</button></div>
+      <div class="desc" style="margin:0 0 6px;font-size:12px;color:var(--ink-3)" id="ox-bankinfo"></div>
+      <div class="qlist" id="ox-list"></div>
+      <div class="qadd"><input id="ox-q" placeholder="문제 (비우면 말로 내는 문제)" maxlength="80"><select id="ox-a"><option value="">?</option><option value="O">O</option><option value="X">X</option></select><button onclick="OX.add()">추가</button></div>
+      <div class="row" style="margin-top:10px"><button class="primary" id="ox-ask" onclick="OX.ask()">출제</button><button id="ox-rev" onclick="OX.reveal()" disabled>정답 공개</button><button id="ox-end" onclick="OX.end()" disabled>끝내기</button></div>
+      <div class="row hide" id="ox-ansrow" style="margin-top:8px"><span style="font-size:13px;color:var(--ink-2);flex:0 0 auto">정답은?</span><button onclick="OX.reveal('O')" style="color:#15803d;font-weight:700">O</button><button onclick="OX.reveal('X')" style="color:#b91c1c;font-weight:700">X</button></div>
+      <div class="qstat hide" id="ox-stat"></div>
+      <div class="arena hide" id="ox-arena"></div>
+      <div class="board" id="ox-board"></div>
+    </div>
     <p class="empty" style="margin-top:28px"><button class="danger" onclick="P.leave()">세션 나가기</button></p>
   </div>
   <div class="modal hide" id="qr-modal" onclick="if(event.target===this)this.classList.add('hide')">
@@ -167,7 +237,9 @@ select{font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius
       <div id="qr"></div>
       <div class="code big" id="qr-code"></div>
       <div class="link" id="qr-link"></div>
-      <div class="row"><button onclick="P.copyLink()">링크 복사</button><button class="primary" onclick="document.getElementById('qr-modal').classList.add('hide')">닫기</button></div>
+      <div class="row"><button class="primary" onclick="P.shareLink()">카톡 등으로 보내기</button><button onclick="P.copyLink()">링크 복사</button></div>
+      <p style="font-size:12px;color:var(--ink-3);margin:10px 0 0">링크 없이도 같이보기 첫 화면에서 코드만 넣으면 들어올 수 있습니다</p>
+      <button style="width:100%;margin-top:10px" onclick="document.getElementById('qr-modal').classList.add('hide')">닫기</button>
     </div>
   </div>
 </div>
@@ -182,10 +254,13 @@ select{font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius
   <button class="mute hide" id="v-mute" onclick="V.toggleMute()">🔇 소리 켜기</button>
   <div class="diff hide" id="v-diff"><div class="pane"><canvas id="v-da"></canvas></div><div class="pane"><canvas id="v-db"></canvas></div></div>
   <div class="dstat hide" id="v-dstat"></div>
+  <div class="ox hide" id="v-ox"><div class="q" id="vox-q"></div><div class="arena" id="vox-arena"></div><div class="res hide" id="vox-res"></div><div class="rank hide" id="vox-rank"></div><div class="btns" id="vox-btns"><button class="O" onclick="VOX.pick('O')">O</button><button class="X" onclick="VOX.pick('X')">X</button></div></div>
   <div class="enter" id="v-enter">
     <h1 id="v-enter-title">같이보기</h1>
     <p>입장하면 진행자가 보여주는 화면이 이 폰에 실시간으로 나옵니다.</p>
     <input id="v-name" placeholder="이름을 넣어주세요" maxlength="12" autocomplete="name">
+    <p class="ehint">내 캐릭터를 고르세요</p>
+    <div class="emojis" id="v-emojis"></div>
     <button onclick="V.enter()">입장하기</button>
     <div class="msg" id="v-msg" style="color:#fca5a5"></div>
   </div>
@@ -200,8 +275,15 @@ select{font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius
 const SB_URL = 'https://dbymktwxokbvfshlztrg.supabase.co';
 const SB_KEY = 'sb_publishable_RHDgmlGV-m946etnPHfXaw_vy2u8uCp';
 const BUCKET = 'share_media';
-const ICE = { iceServers: [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }] };
-const sb = supabase.createClient(SB_URL, SB_KEY);
+const ICE = { iceServers: [
+  { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
+  { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+] };
+const sb = supabase.createClient(SB_URL, SB_KEY, { realtime: { params: { eventsPerSecond: 60 } } });
+// ICE 후보를 따로따로 보내지 않고 다 모은 뒤 한 번에 보냄(메시지 수 최소화)
+function gather(pc, ms) { return new Promise(res => { if (pc.iceGatheringState === 'complete') return res(); const t = setTimeout(res, ms || 3000); pc.onicegatheringstatechange = () => { if (pc.iceGatheringState === 'complete') { clearTimeout(t); res(); } }; }); }
 const $ = id => document.getElementById(id);
 const uid = () => Math.random().toString(36).slice(2, 10);
 const myId = uid();
@@ -210,6 +292,8 @@ function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('on
 function pageUrl() { return location.origin + location.pathname; }
 function viewerUrl(code) { return pageUrl() + '?s=' + code; }
 async function rpc(fn, args) { const { data, error } = await sb.rpc(fn, args); if (error) throw error; return data; }
+const EMOJIS = ['🐶','🐱','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐷','🐸','🐵','🐥','🦄','🐙','🦉'];
+function joinByCode() { const c = $('jcode').value.trim().toUpperCase(); if (c.length !== 6) { toast('코드 6자리를 넣어주세요'); return; } location.href = viewerUrl(c); }
 function channel(code) {
   return sb.channel('share:' + code, { config: { broadcast: { self: false }, presence: { key: myId } } });
 }
@@ -241,7 +325,7 @@ const P = {
     localStorage.setItem('share_presenter', JSON.stringify({ code, pin }));
     const s = await rpc('share_get', { p_code: code });
     if (!s) { toast('세션이 없습니다'); P.leave(); return; }
-    P.title = s.title || ''; P.items = s.items || []; P.state = s.state || { type: 'blank' };
+    P.title = s.title || ''; P.items = s.items || []; P.state = s.state || { type: 'blank' }; OX.list = s.quiz || []; OX.renderList(); OX.loadBank();
     if (P.state.type === 'live') P.state = { type: 'blank' }; // 카메라는 새로 켜야 함
     $('p-start').classList.add('hide'); $('p-main').classList.remove('hide');
     $('p-title').textContent = P.title || '같이보기'; $('p-code').textContent = code;
@@ -256,12 +340,15 @@ const P = {
       const st = P.ch.presenceState();
       const viewers = Object.keys(st).filter(k => k !== myId);
       $('p-count').textContent = viewers.length;
-      $('p-names').textContent = viewers.map(k => (st[k][0] || {}).name || '이름 없음').join(', ');
+      P.viewerNames = {}; P.viewerEmoji = {}; viewers.forEach(k => { P.viewerNames[k] = (st[k][0] || {}).name || '이름 없음'; P.viewerEmoji[k] = (st[k][0] || {}).emoji || '🙂'; });
+      if (P.state.type === 'game' && P.state.game === 'ox') OX.renderArena();
+      P.renderNames();
       if (P.stream) viewers.forEach(id => { if (!P.pcs[id]) P.offer(id); });
       Object.keys(P.pcs).forEach(id => { if (!viewers.includes(id)) P.closePc(id); });
     });
     P.ch.on('broadcast', { event: 'rtc' }, ({ payload }) => P.onRtc(payload));
     P.ch.on('broadcast', { event: 'found' }, ({ payload }) => G.onFound(payload));
+    P.ch.on('broadcast', { event: 'ox' }, ({ payload }) => OX.onPick(payload));
     P.ch.on('broadcast', { event: 'hello' }, ({ payload }) => {
       // 늦게 들어온 참여자에게 현재 상태를 바로 보냄
       P.send('state', P.state);
@@ -270,6 +357,12 @@ const P = {
     P.ch.subscribe(status => { if (status === 'SUBSCRIBED') P.ch.track({ role: 'presenter' }); });
   },
   send(event, payload) { return P.ch.send({ type: 'broadcast', event, payload }); },
+  viewerNames: {},
+  renderNames() {
+    const live = P.state.type === 'live';
+    const lab = { connected: '✓', completed: '✓', connecting: '…', new: '…', checking: '…', failed: '✗', disconnected: '✗', closed: '✗' };
+    $('p-names').textContent = Object.keys(P.viewerNames).map(k => P.viewerNames[k] + (live ? ' ' + (P.pcs[k] ? (lab[P.pcs[k].connectionState] || '…') : '…') : '')).join(', ');
+  },
   async setState(state) {
     P.state = state; P.renderStage(); P.renderGrid();
     P.send('state', state);
@@ -279,9 +372,9 @@ const P = {
   async saveItems() { try { await rpc('share_set', { p_code: P.code, p_pin: P.pin, p_items: P.items }); } catch (e) { toast('목록 저장 실패: ' + e.message); } },
 
   /* ---- 화면 ---- */
-  blank() { P.stopLive(); G.resetUI(); P.setState({ type: 'blank' }); },
+  blank() { P.stopLive(); G.resetUI(); OX.resetUI(); P.setState({ type: 'blank' }); },
   show(i) {
-    P.stopLive(); G.resetUI();
+    P.stopLive(); G.resetUI(); OX.resetUI();
     const it = P.items[i];
     P.setState({ type: it.kind, url: it.url, id: it.id, paused: true, t: 0 });
   },
@@ -293,6 +386,7 @@ const P = {
     $('b-flip').classList.toggle('hide', P.state.type !== 'live');
     st.classList.toggle('game', P.state.type === 'game');
     if (P.state.type === 'blank') { st.innerHTML = '<span>참여자 화면이 비어 있습니다</span>'; return; }
+    if (P.state.type === 'game' && P.state.game === 'ox') { st.innerHTML = '<div style="font-weight:600">🎮 OX 퀴즈 진행 중' + (P.state.status === 'reveal' ? ' · 정답 ' + P.state.answer : '') + '</div><div style="font-size:13px;color:var(--ink-2)">아래 OX 퀴즈 카드에서 선택 상황을 보세요</div>'; return; }
     if (P.state.type === 'game') { st.innerHTML = '<div style="font-weight:600">🎮 틀린그림찾기 진행 중 — ' + P.state.n + '곳' + (P.state.status === 'reveal' ? ' · 정답 공개됨' : '') + '</div><div style="font-size:13px;color:var(--ink-2)">아래 게임 카드에서 순위를 확인하세요</div>'; return; }
     if (P.state.type === 'image') { const im = new Image(); im.src = P.state.url; st.appendChild(im); return; }
     if (P.state.type === 'video') {
@@ -378,7 +472,7 @@ const P = {
     try {
       P.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: P.facing, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
     } catch (e) { toast('카메라를 열 수 없습니다: ' + e.message); return; }
-    G.resetUI();
+    G.resetUI(); OX.resetUI();
     P.setState({ type: 'live' });
     const st = P.ch.presenceState();
     Object.keys(st).filter(k => k !== myId).forEach(id => P.offer(id));
@@ -393,6 +487,7 @@ const P = {
   stopLive() {
     if (P.stream) { P.stream.getTracks().forEach(t => t.stop()); P.stream = null; }
     Object.keys(P.pcs).forEach(P.closePc);
+    P.renderNames();
   },
   closePc(id) { if (P.pcs[id]) { try { P.pcs[id].close(); } catch (e) {} delete P.pcs[id]; } },
   async offer(id) {
@@ -400,13 +495,15 @@ const P = {
     P.closePc(id);
     const pc = new RTCPeerConnection(ICE); P.pcs[id] = pc;
     P.stream.getTracks().forEach(t => pc.addTrack(t, P.stream));
-    pc.onicecandidate = e => { if (e.candidate) P.send('rtc', { to: id, from: myId, kind: 'ice', data: e.candidate }); };
-    pc.onconnectionstatechange = () => { if (['failed', 'disconnected'].includes(pc.connectionState)) setTimeout(() => { if (P.stream && P.pcs[id] === pc) P.offer(id); }, 2000); };
+    pc.onconnectionstatechange = () => { P.renderNames(); if (pc.connectionState === 'failed') setTimeout(() => { if (P.stream && P.pcs[id] === pc) P.offer(id); }, 3000); };
     const o = await pc.createOffer(); await pc.setLocalDescription(o);
-    P.send('rtc', { to: id, from: myId, kind: 'offer', data: pc.localDescription });
+    await gather(pc, 3000);
+    if (P.pcs[id] !== pc) return;
+    P.send('rtc', { to: id, from: myId, kind: 'offer', data: { type: pc.localDescription.type, sdp: pc.localDescription.sdp } });
+    P.renderNames();
   },
   async onRtc(m) {
-    if (m.kind === 'want') { if (P.stream) P.offer(m.from); return; }
+    if (m.kind === 'want') { if (P.stream && (m.force || !P.pcs[m.from])) P.offer(m.from); return; }
     if (m.to !== myId) return;
     const pc = P.pcs[m.from];
     if (!pc) return;
@@ -420,6 +517,11 @@ const P = {
     $('qr').innerHTML = ''; new QRCode($('qr'), { text: url, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
     $('qr-code').textContent = P.code; $('qr-link').textContent = url;
     $('qr-modal').classList.remove('hide');
+  },
+  async shareLink() {
+    const url = viewerUrl(P.code), text = (P.title || '같이보기') + ' 참여 링크입니다. 코드 ' + P.code + String.fromCharCode(10) + url;
+    if (navigator.share) { try { await navigator.share({ title: P.title || '같이보기', text: (P.title || '같이보기') + ' 참여 링크입니다. 코드 ' + P.code, url }); return; } catch (e) { if (e.name === 'AbortError') return; } }
+    try { await navigator.clipboard.writeText(text); toast('링크를 복사했습니다 — 카톡에 붙여넣기 하세요'); } catch (e) { prompt('링크', url); }
   },
   async copyLink() { try { await navigator.clipboard.writeText(viewerUrl(P.code)); toast('링크를 복사했습니다'); } catch (e) { prompt('링크', viewerUrl(P.code)); } },
   leave() {
@@ -440,6 +542,9 @@ const V = {
       if (!s) { $('v-msg').textContent = '세션을 찾을 수 없습니다. QR을 다시 확인해 주세요.'; document.querySelector('#v-enter button').disabled = true; return; }
       if (s.title) { $('v-enter-title').textContent = s.title; $('v-title').textContent = s.title; }
       $('v-name').value = localStorage.getItem('share_name') || '';
+      V.emoji = localStorage.getItem('share_emoji') || EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+      const box = $('v-emojis'); box.innerHTML = '';
+      EMOJIS.forEach(e => { const sp = document.createElement('span'); sp.textContent = e; sp.className = e === V.emoji ? 'sel' : ''; sp.onclick = () => { V.emoji = e; localStorage.setItem('share_emoji', e); box.querySelectorAll('span').forEach(x => x.classList.toggle('sel', x.textContent === e)); }; box.appendChild(sp); });
       V.state = s.state;
     } catch (e) { $('v-msg').textContent = '연결 실패: ' + e.message; }
   },
@@ -455,9 +560,11 @@ const V = {
     V.ch.on('broadcast', { event: 'video' }, ({ payload }) => V.onVideo(payload));
     V.ch.on('broadcast', { event: 'rtc' }, ({ payload }) => V.onRtc(payload));
     V.ch.on('broadcast', { event: 'game' }, ({ payload }) => VG.on(payload));
+    V.ch.on('broadcast', { event: 'ox' }, ({ payload }) => VOX.onPick(payload));
+    V.ch.on('presence', { event: 'sync' }, () => VOX.onPresence());
     V.ch.subscribe(async status => {
       if (status === 'SUBSCRIBED') {
-        await V.ch.track({ role: 'viewer', name: V.name });
+        await V.ch.track({ role: 'viewer', name: V.name, emoji: V.emoji });
         V.ch.send({ type: 'broadcast', event: 'hello', payload: { id: myId } });
         if (V.state) V.apply(V.state);
       }
@@ -470,10 +577,12 @@ const V = {
     const img = $('v-img'), vid = $('v-vid'), live = $('v-live'), wait = $('v-wait'), tag = $('v-tag');
     [img, vid, live, wait].forEach(x => x.classList.add('hide'));
     tag.classList.add('hide'); tag.classList.remove('live'); $('v-mute').classList.add('hide');
-    if (st.type !== 'game') VG.hide();
+    if (!(st.type === 'game' && st.game === 'diff')) VG.hide();
+    if (!(st.type === 'game' && st.game === 'ox')) VOX.hide();
     if (st.type !== 'live' && V.pc) { V.pc.close(); V.pc = null; live.srcObject = null; }
     if (st.type !== 'video') { vid.pause(); }
     if (st.type === 'blank' || !st.type) { wait.classList.remove('hide'); return; }
+    if (st.type === 'game' && st.game === 'ox') { VOX.show(st); return; }
     if (st.type === 'game') { VG.show(st); return; }
     if (st.type === 'image') { img.src = st.url; img.classList.remove('hide'); return; }
     if (st.type === 'video') {
@@ -485,8 +594,10 @@ const V = {
       return;
     }
     if (st.type === 'live') {
-      live.classList.remove('hide'); tag.textContent = '● 실시간'; tag.classList.add('live'); tag.classList.remove('hide');
+      live.classList.remove('hide'); tag.textContent = '● 실시간 · 연결 중…'; tag.classList.add('live'); tag.classList.remove('hide');
       V.send('rtc', { to: null, from: myId, kind: 'want' });
+      clearTimeout(V.retryT);
+      V.retryT = setTimeout(() => { if (V.state.type === 'live' && !(V.pc && ['connected', 'completed'].includes(V.pc.connectionState))) { tag.textContent = '● 실시간 · 다시 연결 중…'; V.send('rtc', { to: null, from: myId, kind: 'want', force: true }); } }, 9000);
     }
   },
   onVideo(m) {
@@ -503,13 +614,18 @@ const V = {
     if (m.to && m.to !== myId) return;
     if (m.kind === 'offer') {
       if (V.pc) V.pc.close();
-      const pc = new RTCPeerConnection(ICE); V.pc = pc;
-      pc.ontrack = e => { const live = $('v-live'); live.srcObject = e.streams[0]; live.play().catch(() => {}); };
-      pc.onicecandidate = e => { if (e.candidate) V.send('rtc', { to: m.from, from: myId, kind: 'ice', data: e.candidate }); };
+      const pc = new RTCPeerConnection(ICE); V.pc = pc; const tag = $('v-tag');
+      pc.ontrack = e => { const live = $('v-live'); live.srcObject = e.streams[0]; live.play().catch(() => {}); tag.textContent = '● 실시간'; clearTimeout(V.retryT); };
+      pc.onconnectionstatechange = () => {
+        if (pc.connectionState === 'connected') tag.textContent = '● 실시간';
+        else if (pc.connectionState === 'failed') { tag.textContent = '● 연결 실패 — 와이파이/데이터를 바꿔 보세요'; V.send('rtc', { to: null, from: myId, kind: 'want', force: true }); }
+      };
       await pc.setRemoteDescription(m.data);
       const a = await pc.createAnswer(); await pc.setLocalDescription(a);
-      V.send('rtc', { to: m.from, from: myId, kind: 'answer', data: pc.localDescription });
-    } else if (m.kind === 'ice' && V.pc) { try { await V.pc.addIceCandidate(m.data); } catch (e) {} }
+      await gather(pc, 3000);
+      if (V.pc !== pc) return;
+      V.send('rtc', { to: m.from, from: myId, kind: 'answer', data: { type: pc.localDescription.type, sdp: pc.localDescription.sdp } });
+    }
   }
 };
 
@@ -582,7 +698,7 @@ const G = {
     } catch (e) { $('g-msg').textContent = '올리기 실패: ' + e.message; }
   },
   start() {
-    P.stopLive(); G.scores = {}; G.status = 'play'; G.renderBoard();
+    P.stopLive(); OX.resetUI(); G.scores = {}; G.status = 'play'; G.renderBoard();
     P.setState({ type: 'game', game: 'diff', a: G.a, b: G.b, regions: G.regions, n: G.regions.length, started: Date.now(), status: 'play' });
     $('g-reveal').disabled = false; $('g-end').disabled = false; $('g-start').textContent = '다시 시작';
   },
@@ -639,11 +755,202 @@ const VG = {
   }
 };
 
+
+/* ===================== 게임: OX 퀴즈 ===================== */
+// 공통: 이모티콘 배치 (zone별 격자 자리 계산 → CSS transition으로 이동)
+function layoutArena(box, people, answer, status) {
+  // people: [{id,name,emoji,choice}] / answer: 'O'|'X'|null
+  if (!box.querySelector('.zone')) box.innerHTML = '<div class="zone O">O</div><div class="mid">?</div><div class="zone X">X</div>';
+  const W = box.clientWidth || 300, H = box.clientHeight || 230;
+  const zo = box.querySelector('.zone.O'), zx = box.querySelector('.zone.X');
+  zo.className = 'zone O' + (status === 'reveal' ? (answer === 'O' ? ' win' : ' lose') : '');
+  zx.className = 'zone X' + (status === 'reveal' ? (answer === 'X' ? ' win' : ' lose') : '');
+  const seen = {};
+  const counts = { O: 0, X: 0, '': 0 };
+  people.forEach(p => {
+    const c = p.choice === 'O' || p.choice === 'X' ? p.choice : '';
+    const n = counts[c]++;
+    let el = box.querySelector('[data-id="' + p.id + '"]');
+    if (!el) { el = document.createElement('div'); el.className = 'av'; el.dataset.id = p.id; el.innerHTML = '<span class="e"></span><span class="n"></span>'; el.style.left = (W / 2) + 'px'; el.style.top = (H / 2) + 'px'; box.appendChild(el); }
+    el.querySelector('.e').textContent = p.emoji || '🙂'; el.querySelector('.n').textContent = p.name || '';
+    el.classList.toggle('ok', status === 'reveal' && c === answer);
+    const zw = c ? W * 0.38 : W * 0.24, zx0 = c === 'O' ? 0 : c === 'X' ? W * 0.62 : W * 0.38;
+    const cols = Math.max(1, Math.floor((zw - 10) / 48));
+    const col = n % cols, row = Math.floor(n / cols);
+    const cw = zw / cols;
+    el.style.left = Math.round(zx0 + cw * col + cw / 2) + 'px';
+    el.style.top = Math.min(H - 48, 56 + row * 50) + 'px';
+    seen[p.id] = 1;
+  });
+  box.querySelectorAll('.av').forEach(el => { if (!seen[el.dataset.id]) el.remove(); });
+}
+
+// 진행자
+const OX = {
+  list: [], picks: {}, score: {}, qid: null, cur: null, answer: null, status: null,
+  bank: null, used: {},
+  async loadBank() {
+    try {
+      const r = await fetch('questions.json?v=' + Date.now(), { cache: 'no-store' }); OX.bank = await r.json();
+      try { OX.used = JSON.parse(localStorage.getItem('share_oxused_' + P.code) || '{}'); } catch (e) { OX.used = {}; }
+      const sel = $('ox-cat'); sel.innerHTML = '<option value="">문제 은행 · 전체(랜덤)</option>' + Object.keys(OX.bank).map(c => '<option value="' + esc(c) + '">' + esc(c) + ' (' + OX.bank[c].length + ')</option>').join('');
+      OX.bankInfo();
+    } catch (e) { $('ox-bankinfo').textContent = '문제 은행을 불러오지 못했습니다'; }
+  },
+  bankInfo() {
+    if (!OX.bank) return;
+    const total = Object.values(OX.bank).reduce((n, a) => n + a.length, 0), used = Object.keys(OX.used).length;
+    $('ox-bankinfo').textContent = '문제 은행 ' + total + '문제 · 이 세션에서 뽑은 문제 ' + used + '개' + (used ? ' · ' : '') ;
+    if (used) { const b = document.createElement('button'); b.textContent = '뽑은 기록 지우기'; b.style.cssText = 'padding:2px 8px;font-size:12px;margin-left:4px'; b.onclick = () => { OX.used = {}; localStorage.removeItem('share_oxused_' + P.code); OX.bankInfo(); }; $('ox-bankinfo').appendChild(b); }
+  },
+  draw(n) {
+    if (!OX.bank) { toast('문제 은행이 아직 준비되지 않았습니다'); return; }
+    const cat = $('ox-cat').value;
+    let pool = [];
+    (cat ? [cat] : Object.keys(OX.bank)).forEach(c => (OX.bank[c] || []).forEach(q => pool.push({ q: q.q, a: q.a, c })));
+    const inList = {}; OX.list.forEach(q => inList[q.q] = 1);
+    let fresh = pool.filter(q => !OX.used[q.q] && !inList[q.q]);
+    if (fresh.length < n) { toast(cat ? '이 분야는 다 뽑았습니다 — 기록을 지우거나 다른 분야를 고르세요' : '문제를 다 뽑았습니다 — 뽑은 기록을 지워주세요'); if (!fresh.length) return; }
+    for (let i = fresh.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [fresh[i], fresh[j]] = [fresh[j], fresh[i]]; }
+    const picked = fresh.slice(0, n);
+    picked.forEach(q => OX.used[q.q] = 1); localStorage.setItem('share_oxused_' + P.code, JSON.stringify(OX.used)); OX.bankInfo();
+    if (n === 1) { $('ox-q').value = '[' + picked[0].c + '] ' + picked[0].q; $('ox-a').value = picked[0].a; OX.cur = null; OX.renderList(); toast('문제를 채웠습니다 — 「출제」를 누르세요'); }
+    else { picked.forEach(q => OX.list.push({ q: '[' + q.c + '] ' + q.q, a: q.a })); OX.renderList(); OX.save(); toast(picked.length + '문제를 목록에 담았습니다'); }
+  },
+  renderList() {
+    const b = $('ox-list');
+    if (!OX.list.length) { b.innerHTML = '<div class="empty" style="padding:8px 0">등록된 문제가 없습니다 — 아래에서 추가하거나 바로 출제하세요</div>'; return; }
+    b.innerHTML = OX.list.map((q, i) => '<div class="qi' + (OX.cur === i ? ' cur' : '') + (q.done ? '' : '') + '"><b style="color:var(--ink-3);width:18px">' + (i + 1) + '</b><span class="t">' + esc(q.q) + (q.done ? ' <span style="color:var(--ink-3);font-size:12px">출제함</span>' : '') + '</span><span class="a ' + (q.a || '') + '">' + (q.a || '?') + '</span><button class="x" title="삭제" onclick="OX.del(' + i + ')">×</button></div>').join('');
+    b.querySelectorAll('.qi').forEach((el, i) => { el.onclick = e => { if (e.target.classList.contains('x')) return; OX.cur = i; OX.renderList(); $('ox-q').value = OX.list[i].q; $('ox-a').value = OX.list[i].a || ''; }; });
+  },
+  async save() { try { await rpc('share_set', { p_code: P.code, p_pin: P.pin, p_quiz: OX.list }); } catch (e) { toast('문제 저장 실패: ' + e.message); } },
+  add() {
+    const q = $('ox-q').value.trim(), a = $('ox-a').value;
+    if (!q) { toast('문제를 적어주세요'); return; }
+    OX.list.push({ q, a }); $('ox-q').value = ''; $('ox-a').value = ''; OX.renderList(); OX.save();
+  },
+  del(i) { OX.list.splice(i, 1); if (OX.cur === i) OX.cur = null; OX.renderList(); OX.save(); },
+  ask() {
+    P.stopLive(); G.resetUI();
+    const typed = $('ox-q').value.trim(), typedA = $('ox-a').value;
+    let q, a;
+    if (OX.cur !== null && OX.list[OX.cur] && OX.list[OX.cur].q === typed) { q = typed; a = OX.list[OX.cur].a || typedA; OX.list[OX.cur].done = true; }
+    else if (typed) { q = typed; a = typedA; }
+    else { const next = OX.list.findIndex(x => !x.done); if (next >= 0) { OX.cur = next; q = OX.list[next].q; a = OX.list[next].a; OX.list[next].done = true; } else { q = ''; a = typedA; } }
+    OX.qid = Date.now(); OX.picks = {}; OX.answer = a || null; OX.status = 'ask';
+    OX.renderList(); OX.save();
+    P.setState({ type: 'game', game: 'ox', q: q, qid: OX.qid, status: 'ask', answer: null, n: Object.keys(OX.score).length });
+    $('ox-rev').disabled = !a; $('ox-ansrow').classList.toggle('hide', !!a); $('ox-end').disabled = false; $('ox-ask').textContent = '다음 문제';
+    $('ox-arena').classList.remove('hide'); $('ox-stat').classList.remove('hide'); OX.renderArena(); OX.renderBoard();
+    if (OX.cur !== null) { OX.cur = (OX.cur + 1 < OX.list.length) ? OX.cur + 1 : null; }
+    $('ox-q').value = ''; $('ox-a').value = ''; OX.renderList();
+  },
+  onPick(m) {
+    if (OX.status !== 'ask' || m.qid !== OX.qid) return;
+    OX.picks[m.id] = { name: m.name, emoji: m.emoji, choice: m.choice };
+    OX.renderArena();
+  },
+  people() {
+    const ids = Object.keys(P.viewerNames); Object.keys(OX.picks).forEach(k => { if (!ids.includes(k)) ids.push(k); });
+    return ids.map(id => ({ id, name: (OX.picks[id] || {}).name || P.viewerNames[id], emoji: (OX.picks[id] || {}).emoji || P.viewerEmoji[id], choice: (OX.picks[id] || {}).choice || '' }));
+  },
+  renderArena() {
+    if (P.state.type !== 'game' || P.state.game !== 'ox') return;
+    const ppl = OX.people(); layoutArena($('ox-arena'), ppl, OX.answer, OX.status);
+    const o = ppl.filter(p => p.choice === 'O').length, x = ppl.filter(p => p.choice === 'X').length;
+    $('ox-stat').innerHTML = '<span>O ' + o + '명 · X ' + x + '명 · 미선택 ' + (ppl.length - o - x) + '명</span><span>' + (OX.status === 'reveal' ? '정답 ' + OX.answer : '선택 중…') + '</span>';
+  },
+  reveal(a) {
+    if (OX.status !== 'ask') return;
+    OX.answer = a || OX.answer; if (!OX.answer) { toast('정답을 골라주세요'); return; }
+    OX.status = 'reveal';
+    const ppl = OX.people();
+    ppl.forEach(p => { const sc = OX.score[p.id] || (OX.score[p.id] = { name: p.name, emoji: p.emoji, pts: 0, n: 0 }); sc.name = p.name; sc.emoji = p.emoji; sc.n++; if (p.choice === OX.answer) sc.pts++; });
+    const board = Object.values(OX.score).sort((p, q) => q.pts - p.pts).slice(0, 10);
+    P.setState({ type: 'game', game: 'ox', q: P.state.q, qid: OX.qid, status: 'reveal', answer: OX.answer, board, correct: ppl.filter(p => p.choice === OX.answer).map(p => p.name) });
+    $('ox-rev').disabled = true; $('ox-ansrow').classList.add('hide'); OX.renderArena(); OX.renderBoard();
+  },
+  renderBoard() {
+    const b = $('ox-board'); const rows = Object.values(OX.score).sort((p, q) => q.pts - p.pts);
+    b.innerHTML = rows.length ? rows.map((r, i) => '<div class="r"><b>' + (i + 1) + '</b><span class="nm">' + esc(r.emoji + ' ' + r.name) + '</span><span>' + r.pts + '점 / ' + r.n + '문제</span></div>').join('') : '';
+  },
+  end() { OX.score = {}; OX.list.forEach(q => delete q.done); OX.save(); OX.renderList(); P.blank(); },
+  resetUI() { OX.status = null; $('ox-rev').disabled = true; $('ox-end').disabled = true; $('ox-ask').textContent = '출제'; $('ox-ansrow').classList.add('hide'); $('ox-arena').classList.add('hide'); $('ox-stat').classList.add('hide'); }
+};
+
+// 참여자
+const VOX = {
+  st: null, picks: {}, my: '',
+  hide() { $('v-ox').classList.add('hide'); },
+  show(st) {
+    const fresh = !VOX.st || VOX.st.qid !== st.qid;
+    VOX.st = st; $('v-ox').classList.remove('hide');
+    if (fresh) { VOX.picks = {}; VOX.my = ''; }
+    $('vox-q').innerHTML = '<small>OX 퀴즈</small>' + (st.q ? esc(st.q) : '진행자가 말하는 문제를 듣고 고르세요');
+    const btns = $('vox-btns'); btns.querySelectorAll('button').forEach(b => { b.disabled = st.status !== 'ask'; b.classList.toggle('sel', b.textContent === VOX.my); });
+    const res = $('vox-res'), rank = $('vox-rank');
+    if (st.status === 'reveal') {
+      const ok = VOX.my === st.answer;
+      res.textContent = '정답은 ' + st.answer + '! ' + (VOX.my ? (ok ? '맞았어요 🎉' : '틀렸어요 😢') : '선택 안 함');
+      res.classList.remove('hide');
+      rank.innerHTML = (st.board || []).map((r, i) => (i + 1) + '위 ' + esc(r.emoji + ' ' + r.name) + ' ' + r.pts + '점').join('<br>');
+      rank.classList.toggle('hide', !(st.board || []).length);
+    } else { res.classList.add('hide'); rank.classList.add('hide'); }
+    VOX.render();
+  },
+  pick(c) {
+    if (!VOX.st || VOX.st.status !== 'ask') return;
+    VOX.my = c; VOX.picks[myId] = { name: V.name, emoji: V.emoji, choice: c };
+    $('vox-btns').querySelectorAll('button').forEach(b => b.classList.toggle('sel', b.textContent === c));
+    if (navigator.vibrate) navigator.vibrate(30);
+    V.send('ox', { id: myId, name: V.name, emoji: V.emoji, choice: c, qid: VOX.st.qid });
+    VOX.render();
+  },
+  onPick(m) { if (!VOX.st || m.qid !== VOX.st.qid) return; VOX.picks[m.id] = { name: m.name, emoji: m.emoji, choice: m.choice }; VOX.render(); },
+  onPresence() { if (VOX.st) VOX.render(); },
+  render() {
+    if (!VOX.st || $('v-ox').classList.contains('hide')) return;
+    const st = V.ch ? V.ch.presenceState() : {};
+    const ids = Object.keys(st).filter(k => (st[k][0] || {}).role === 'viewer'); Object.keys(VOX.picks).forEach(k => { if (!ids.includes(k)) ids.push(k); });
+    const ppl = ids.map(id => ({ id, name: (VOX.picks[id] || {}).name || (st[id] ? st[id][0].name : ''), emoji: (VOX.picks[id] || {}).emoji || (st[id] ? st[id][0].emoji : '🙂'), choice: (VOX.picks[id] || {}).choice || '' }));
+    layoutArena($('vox-arena'), ppl, VOX.st.answer, VOX.st.status);
+  }
+};
+
+/* ===================== 앱 설치(PWA) — 진행자 화면에서만 ===================== */
+const PWA = {
+  ev: null,
+  init() {
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+    const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+    if (standalone || localStorage.getItem('share_install_hide')) return;
+    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); PWA.ev = e; PWA.chip('앱으로 설치'); });
+    const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (ios) PWA.chip('홈 화면에 추가');
+  },
+  chip(label) {
+    if ($('install-chip')) return;
+    const d = document.createElement('div'); d.className = 'install'; d.id = 'install-chip';
+    d.innerHTML = '<span>📲 ' + label + '</span><button class="x" title="닫기">×</button>';
+    d.querySelector('span').onclick = PWA.go; d.querySelector('.x').onclick = () => { d.remove(); localStorage.setItem('share_install_hide', '1'); };
+    document.body.appendChild(d);
+  },
+  async go() {
+    if (PWA.ev) { PWA.ev.prompt(); const r = await PWA.ev.userChoice; if (r.outcome === 'accepted') { const c = $('install-chip'); if (c) c.remove(); } PWA.ev = null; return; }
+    const t = document.createElement('div'); t.className = 'ios-tip';
+    t.innerHTML = '<b>아이폰에서 앱으로 추가하기</b><br>Safari 아래쪽 <b>공유</b> 버튼(네모에 화살표) → <b>홈 화면에 추가</b>를 누르세요.<div style="text-align:right;margin-top:8px"><button>닫기</button></div>';
+    t.querySelector('button').onclick = () => t.remove();
+    document.body.appendChild(t);
+  }
+};
+
 /* ===================== 시작 ===================== */
 (function () {
   const code = new URLSearchParams(location.search).get('s');
   if (code) { V.init(code.toUpperCase()); return; }
+  PWA.init();
   $('p-start').classList.remove('hide'); G.init();
+  $('jcode').addEventListener('keydown', e => { if (e.key === 'Enter') joinByCode(); });
   try {
     const saved = JSON.parse(localStorage.getItem('share_presenter') || 'null');
     if (saved && saved.code && saved.pin) rpc('share_auth', { p_code: saved.code, p_pin: saved.pin }).then(ok => { if (ok) P.open(saved.code, saved.pin, false); });

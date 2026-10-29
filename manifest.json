@@ -1,0 +1,17 @@
+{
+  "name": "같이보기",
+  "short_name": "같이보기",
+  "description": "QR로 들어온 참여자 폰에 사진·영상·카메라 화면을 실시간으로 같이 보여주는 앱",
+  "start_url": "/share/",
+  "scope": "/share/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#0e7490",
+  "lang": "ko",
+  "icons": [
+    { "src": "/share/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/share/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/share/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
